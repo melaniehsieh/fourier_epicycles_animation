@@ -15,7 +15,7 @@ class CircleWave:
         self.wave = wave
         self.wv_point = point_on_wave
 
-        self.circle_patch = Circle(self.center, radius = self.r, color = (1,0,0,0.3))
+        self.circle_patch = Circle(self.center, radius = self.r, color = (1,0,0,0.2))
         self.child = None
 
     def update_pos(self):
@@ -30,7 +30,7 @@ class CircleWave:
         ax.plot([self.x, self.x + self.r*math.cos(theta)], \
                 [self.y, self.y + self.r*math.sin(theta)], '--', color = 'black')
 
-        ax.plot(self.x + self.r*math.cos(theta), self.y + self.r*math.sin(theta), 'o', color = (0,0,1,0.5))
+        ax.plot(self.x + self.r*math.cos(theta), self.y + self.r*math.sin(theta), 'o', color = 'black')
 
         point = [self.x + self.r*math.cos(theta),  self.y + self.r*math.sin(theta)]
 
@@ -48,7 +48,7 @@ class SineWave:
         self.color = color
 
         self.func = lambda x, t: self.amp*math.sin(self.omg*(x - self.c*t))
-
+        
     def plot_wave(self, ax, x_values, t):
         y = [self.func(x, t) for x in x_values]
         ax.plot(x_values, y, '-', color = self.color)
@@ -73,7 +73,7 @@ class FourierSeriesWave:
             wave.plot_wave(ax, x_values, t)
 
         wave_sum = [sum([wave.func(x, t) for wave in self.waves]) for x in x_values]
-        ax.plot(x_values, wave_sum, '-', lw = 2, color = 'black')
+        ax.plot(x_values, wave_sum, '-', lw = 1.5, color = 'black')
 
         wave_sum_yp = sum([wave.func(0, t) for wave in self.waves]) 
         ax.plot([point[0], 0], [point[1], wave_sum_yp], '--', color = (0.2, 0.2, 0.2, 0.5))
@@ -82,14 +82,21 @@ class FourierSeriesWave:
 
 fig, ax = plt.subplots()
 
-time_points = [0 +100*i/10000 for i in range(10001)] 
+time_points = [0 + 500*i/100000 for i in range(100001)] 
 n_time = len(time_points)
 
-wave = SineWave(3, 1, 10, color = (0,0,1,0.3))
-wave_2 = SineWave(3, 1, 4, color = (0,1,0,0.3))
+#multiple waves
+wave = SineWave(3, 5, 5, color = (0,0,1,0.3))
+wave_2 = SineWave(3, 5.5, 11, color = (0,1,0,0.3))
 waves = [wave, wave_2]
 
-x = [0 + 10*math.pi*i/1000 for i in range(1001)]
+# square wave
+# waves = [SineWave(1.5*(10/((i)*math.pi)), i, 15, color = (0,0,1,0.2)) for i in range(1, 10, 2)]
+
+# sawtooth wave
+# waves = [SineWave(3*(3/((i)*math.pi)), i, 20, color = (0,1,0,0.3)) for i in range(1, 5)]
+
+x = [0 + 10*math.pi*i/5000 for i in range(5001)]
 
 fourier_series = FourierSeriesWave(waves)
 
@@ -106,12 +113,9 @@ def animate(frame):
     draw_points_x.append(point[0])
     draw_points_y.append(point[1])
 
-    ax.plot(draw_points_x, draw_points_y, '-', color = 'purple')
-    
-    equation_title = "3sin(x - t) + 3sin(x - 4t)"
-    t_title = "$t = {}$".format(t)
+    ax.plot(draw_points_x, draw_points_y, '-', color = (0,0,1,0.8))
+    equation_title = "3sin(x - 20t) + 2sin(3x - 6t)"
     ax.set_title(equation_title, color = 'black')
-    ax.set_title(equation_title + " | " + t_title, color = 'black')
 
     ax.set_xlim([-20, 20])
     ax.set_ylim([-10, 10])
@@ -119,15 +123,3 @@ def animate(frame):
 animation = FuncAnimation(fig, animate, frames = range(n_time), repeat = False, interval = 50)
 plt.show()
 
-# 3sin(x - t) + 3sin(x - 4t)
-# 2sin(4(x - t)) + 2sin(4.5(x - 3t))
-# 3sin(5(x - t)) + 3sin(5.5(x - 2t))
-# 2sin(x - t) + 2sin(x - 2t) + 2sin(x - 3t) + sin(3(x - 2.5t))
-# 3sin(5(x - t)) + 2sin(5.5(x - 2t)) + sin(6(x - 3t))
-# 3sin(5(x - t)) + 3sin(5.5(x + 2t))
-# 6sin(x - 5t)
-# 7sin(4(x - t)) + sin(4.25(x - 20t))
-# 3sin(4(x - 4t)) + 3sin(4(x - 8t))
-# 6sin(x - 4t) + sin(1.25(x - t))
-# 4sin(x - 6t) + 3sin(10(x - 2t))
-# 4sin(x - 6t) + 3sin(1.25(x + 2t))
